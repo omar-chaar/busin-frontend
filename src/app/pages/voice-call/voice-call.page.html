@@ -1,0 +1,26 @@
+<ion-content class="profile-page" fullscreen="true">
+  <div class="position-top">
+    <div class="profile-container">
+      <span class="profile-icons profile-header">
+        <ion-icon name="chevron-back-outline" (click)="goBack()"></ion-icon>
+      </span>
+      <p>00:05</p>
+      <span class="profile-avatar non-primary-button">
+        <ion-avatar>
+          <img src="https://gravatar.com/avatar/dba6bae8c566f9d4041fb9cd9ada7741?d=identicon&f=y">
+        </ion-avatar>
+      </span>
+      
+      <h1 class="profile-title">{{profileUser.getFullName()}}</h1>
+      <span class="profile-info">
+        <p>{{department.name}}</p>
+        <p>{{profileUser.position}}</p>
+      </span>
+      <span class="profile-icons profile-options">
+        <ion-icon name="volume-high"></ion-icon>
+        <ion-icon name="mic-off"></ion-icon>
+        <ion-icon name="call" class="phone-icon rotate-133"></ion-icon>
+      </span>
+    </div>   
+  </div>
+</ion-content> 

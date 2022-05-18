@@ -1,0 +1,24 @@
+<ion-content>
+
+  <ion-list lines="full">
+    <ion-item *ngFor="let chat of chats;" ion-button>
+      <ion-avatar slot="start" (click)="goToProfile(chat.participants[0].id === user.id ? chat.participants[1].id : chat.participants[0].id)">
+        <img src="../../../assets/images/gw50h17a.bmp">
+      </ion-avatar>
+      <ion-label (click)="redirectToMessage(chat.id)">
+        <h2>{{chat.participants[0].id === user.id ? chat.participants[1].getFullName() : chat.participants[0].getFullName()}}</h2>
+        <ion-label class="message-info">
+          <p class="text-info">{{chat.messages[chat.messages.length-1].message}}</p>
+          <p class="hour-info">{{formatTime(chat.messages[chat.messages.length-1].time)}}</p>
+        </ion-label>
+      </ion-label>
+      <ion-badge color="tertiary" *ngIf="chat.unreads > 0">{{chat.unreads}}</ion-badge>
+    </ion-item>
+
+  </ion-list>
+
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
+    <ion-infinite-scroll-content loadingSpinner="bubbles">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
+</ion-content>

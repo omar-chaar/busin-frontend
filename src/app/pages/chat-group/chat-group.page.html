@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <div class="header">
+      <ion-icon name="chevron-back-outline" class="previous" (click)="goBack()"></ion-icon>
+      <ion-avatar id="main-avatar" slot="start" (click)="goToProfile(contact.id)">
+        <img src="../../../assets/images/gw50h17a.bmp">
+      </ion-avatar>
+      <div class="contact-info">
+        <h1>{{chat.department.name}}</h1>
+      </div>
+      <div class="icons">
+        <ion-icon name="videocam"></ion-icon>
+        <ion-icon name="call"></ion-icon>
+      </div>
+    </div>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <ion-list>
+    <ion-grid>
+      <ion-row *ngFor="let message of messages" class="messagebox-container"
+        [ngClass]="{'user-message': message.sender === user}">
+        <div class="message-box">
+          <div class="meta-info sender-name" *ngIf="message.sender !== user">
+            <p>{{message.sender.name}}</p>
+          </div>
+          <p>{{message.message}}</p>
+          <div class="meta-info">
+            <ion-icon *ngIf="message.sender === user" name="checkmark-done-sharp"></ion-icon>
+            <p>{{formatTime(message.time)}}</p>
+          </div>
+        </div>
+      </ion-row>
+    </ion-grid>
+  </ion-list>
+</ion-content>
+<ion-item class="text-container">
+  <form class="text-form" (ngSubmit)="onSubmit()">
+    <ion-input [(ngModel)]="text" name="text" id="text" type="text" class="text-field" 
+      placeholder="Type to send a text message..." disabled="{{!chat.participants.includes(user)}}"></ion-input>
+    <ion-button disabled="{{!chat.participants.includes(user)}}" type="submit" fill="clear" class="submit-btn">
+      <ion-icon name="send-sharp"></ion-icon>
+    </ion-button>
+
+  </form>
+</ion-item>
+
+<!-- [ngClass]="{ reminder: task.reminder }"-->

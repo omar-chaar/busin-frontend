@@ -1,0 +1,84 @@
+
+ion-toolbar{
+    --padding-top: 10px;
+    --padding-bottom: 10px;
+}
+
+.page-title{
+    background-color: #5B3FFF;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 15px;
+}
+
+.page-title h1{
+    margin: 0;
+}
+
+.checkbox-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.container{
+    background-color: #EEF1F2;
+    padding: 0px 25px 25px 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.text{
+    color:#5B3FFF;
+    background-color: transparent;
+}
+
+.text:hover{
+    background-color: inherit;
+}
+
+.icon{
+    padding: 10px 15px 0px 15px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #5B3FFF;
+    font-size: 3rem;
+    align-self: center;
+    margin-bottom: 30px;
+}
+
+ion-item{
+    --background: transparent;
+}
+
+.non-primary-button{
+    align-self: center;
+    cursor: pointer;
+}
+
+.return-icon{
+    font-size: 2rem;
+    cursor: pointer;
+}
+
+.title{
+    text-align: center;
+    color: #414141;
+    font-size: 20px;
+}
+
+.first-row{
+    padding: 10px;
+}
+
+.second-row{
+    margin: 10px;
+}
+
+.time-display{
+   --background: #eef1f2;
+}

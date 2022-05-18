@@ -1,0 +1,36 @@
+.content{
+    --border-color: transparent;
+}
+
+.button-container{
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.annoucement-item{
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(150, 150, 150, .25);
+}
+
+.announcement-title{
+    font-size: 1.2rem;
+    color: #414141;
+}
+
+.button-div{
+    margin-top: 10px;
+}
+
+ion-list{
+    padding-top: 0px;
+}
+
+ion-label{
+    display: block;
+}
+
+.date{
+    color: #979797;
+    font-size: 1rem;
+}

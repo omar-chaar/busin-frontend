@@ -1,0 +1,18 @@
+.menu-item{
+    --color-selected: #5D5FEF;
+}
+
+.menu-button{
+    flex: 0;
+    border: none;
+    --color: grey;
+    transition: color .2s;
+}
+
+.menu-button:active{
+    color: #000;
+}
+
+.tab-bar{
+    --background: #fff;
+}
