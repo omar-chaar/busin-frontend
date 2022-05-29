@@ -5,11 +5,9 @@ import { ModalController } from '@ionic/angular';
 import { AnnouncementService } from 'src/app/services/announcement/announcement.service';
 import { NewAnnouncementPage } from '../new-announcement/new-announcement.page';
 import { ToastService } from 'src/app/services/toast/toast.service';
-
 import { Announcement } from 'src/model/classes/Announcement';
 import { User } from 'src/model/classes/User';
 import { UserService } from 'src/app/services/user/user.service';
-import { TouchSequence } from 'selenium-webdriver';
 import { Router } from '@angular/router';
 import { ActionSheetController } from '@ionic/angular';
 
@@ -41,6 +39,7 @@ export class AnnouncementsPage implements OnInit {
   fullyLoaded = false;
   modal: HTMLElement;
   user: User;
+  loaded = false;
 
   constructor(
     public modalController: ModalController,
@@ -50,11 +49,13 @@ export class AnnouncementsPage implements OnInit {
     private router: Router,
     private actionSheetCtrl: ActionSheetController
   ) {
+    
+  }
+
+  ngOnInit(): void { 
     this.user = this.userService.currentUser;
     this.loadTenFirstAnnouncements();
   }
-
-  ngOnInit(): void { }
 
   loadAnnouncements(): void {
     this.announcementService.getAnnouncements().subscribe(
@@ -132,7 +133,7 @@ export class AnnouncementsPage implements OnInit {
     this.announcementService.get10FirstAnnouncements().subscribe(
       (resp: any) => {
         this.announcements = resp.data.map((announcement) => {
-          const date = this.toDate(announcement.time);
+          const date = new Date(announcement.time);
           announcement = new Announcement(
             announcement.announcement_id,
             announcement.announcement_title,
@@ -150,24 +151,30 @@ export class AnnouncementsPage implements OnInit {
               const userObj = new User(user.user_id, user.name, user.surname, user.position, user.email, null,
                 user.department_id, user.is_admin, user.is_owner, null);
               announcement.sender = userObj;
+              this.loaded = true;
             },
             (err) => {
               this.toastService.presentToast(err.error.error, 4500, 'danger');
             }
           )
         })
-        console.log(this.announcements);
         this.fullyLoaded = true;
         if (this.announcements.length < 10) {
           this.fullyLoaded = true;
         }
+       
       },
 
       (err) => {
         this.toastService.presentToast(err.error.error, 4500, 'danger');
         this.fullyLoaded = true;
+       
       }
+      
     );
+    setTimeout(() => {
+      this.loaded = true;
+    }, 1500);
   }
 
   loadMore10Announcements(): void {
@@ -248,7 +255,7 @@ export class AnnouncementsPage implements OnInit {
     let day = date.getDate().toString();
     let monthIndex = date.getMonth().toString();
     let year = date.getFullYear().toString();
-    let hours = (date.getHours() - 2).toString();
+    let hours = date.getHours().toString();
     let minutes = date.getMinutes().toString();
 
     if (day.length == 1) {
@@ -259,8 +266,7 @@ export class AnnouncementsPage implements OnInit {
     }
     if (minutes.length == 1) {
       minutes = '0' + minutes;
-    }
-
+    }    
     return (
       day +
       ' ' +
@@ -280,7 +286,7 @@ export class AnnouncementsPage implements OnInit {
     const timeArr = strArr[1].toString().split(':');
     return new Date(
       +dateArr[0],
-      +dateArr[1] - 1,
+      +dateArr[1],
       +dateArr[2],
       +timeArr[0],
       +timeArr[1]

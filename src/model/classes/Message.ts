@@ -1,6 +1,5 @@
 import { IMessage } from "../interfaces/interfaces";
 import { Chat } from "./Chat";
-import { User } from "./User";
 
 export class Message implements IMessage {
 
@@ -23,7 +22,6 @@ export class Message implements IMessage {
         if (typeof time === 'string') {
             //add one hour to time
             this.time = new Date(time);
-            this.time.setHours(this.time.getHours() + 1);            
         }
         else this.time = time;
 
