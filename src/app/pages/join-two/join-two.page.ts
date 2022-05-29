@@ -23,17 +23,29 @@ export class JoinTwoPage implements OnInit {
   ngOnInit() {
   }
 
-  async handleSubmit():Promise<void>{
+  handleSubmit():void{
     if(this.validationService.validateEmail(this.email) &&
        this.validationService.validatePassword(this.password) &&
        this.validationService.validateEqualPasswords(this.password, this.repeatedPassword)){
-        const resp = await this.userService.login(this.email)
-        if(resp){
-          this.toastService.presentToast('Account created, welcome to the team!', 3500, 'success');
-          this.redirectTo('/tabs/messages');
-        }
+        this.createAccount();
        }
   }
+
+  createAccount():void{
+    this.userService.createAccount(this.email, this.password).subscribe(
+      (resp) => {
+        if(resp){
+          this.toastService.presentToast('Account created successfully', 3000, 'success');
+          this.redirectTo('/user-login');
+        }
+      },
+      (err) => {
+        console.log(err)
+        this.toastService.presentToast(err.error.error, 4500, 'danger');
+      }
+    );
+  }
+
   redirectTo(url: string): void {
     this._router.navigateByUrl(url);
   }

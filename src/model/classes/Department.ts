@@ -1,16 +1,17 @@
-import { Idepartment } from "../interfaces/interfaces";
+import { IDepartment } from "../interfaces/interfaces";
 import { Company } from "./Company";
 
-export class department implements Idepartment{
+export class Department implements IDepartment{
 
-    id: number;
+    department_id: number;
     name: string;
-    company: Company;
+    company_id: number;
+    users?: any[];
 
-    constructor(id:number, name: string, company:Company){
-        this.id = id;
+    constructor(id:number, name: string, company_id:number){
+        this.department_id = id;
         this.name = name;
-        this.company = company;
+        this.company_id = company_id;
     }
 
 }

@@ -2,31 +2,34 @@
   <ion-toolbar>
     <div class="header">
       <ion-icon name="chevron-back-outline" class="previous" (click)="goBack()"></ion-icon>
-      <ion-avatar id="main-avatar" slot="start" (click)="goToProfile(contact.id)">
+      <ion-avatar id="main-avatar" slot="start" >
         <img src="../../../assets/images/gw50h17a.bmp">
       </ion-avatar>
+     
       <div class="contact-info">
-        <h1>{{chat.department.name}}</h1>
-      </div>
-      <div class="icons">
-        <ion-icon name="videocam"></ion-icon>
-        <ion-icon name="call"></ion-icon>
-      </div>
+        <h1>{{department.name}}</h1>
+      </div>      
     </div>
   </ion-toolbar>
 </ion-header>
 <ion-content>
+  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)" position="top" *ngIf="!fullyLoaded">
+    <ion-infinite-scroll-content loadingSpinner="bubbles">
+    </ion-infinite-scroll-content>
+  </ion-infinite-scroll>
   <ion-list>
     <ion-grid>
-      <ion-row *ngFor="let message of messages" class="messagebox-container"
-        [ngClass]="{'user-message': message.sender === user}">
-        <div class="message-box">
-          <div class="meta-info sender-name" *ngIf="message.sender !== user">
-            <p>{{message.sender.name}}</p>
+      <ion-row *ngFor="let message of messages; let i = index;" class="messagebox-container"
+        [ngClass]="{'user-message': message.sender === user.id}">
+        <div class="separator" *ngIf="i > 0 && message.time.getDate() != messages[i-1].time.getDate()">
+          {{message.time.toLocaleDateString()}}
+        </div>
+        <div class="message-box" [ngClass]="{'outsider': message.department_id !== department.department_id}">
+          <div class="meta-info sender-name" *ngIf="message.sender !== user.id">
+            <p>{{message.sender_name}} {{getDepartmentName(message)}}</p>
           </div>
-          <p>{{message.message}}</p>
+          <p>{{message.body}}</p>
           <div class="meta-info">
-            <ion-icon *ngIf="message.sender === user" name="checkmark-done-sharp"></ion-icon>
             <p>{{formatTime(message.time)}}</p>
           </div>
         </div>
@@ -34,15 +37,22 @@
     </ion-grid>
   </ion-list>
 </ion-content>
+<div class="loading-icon" *ngIf="!loaded">
+  <ion-spinner name="bubbles"></ion-spinner>
+</div>
+<div *ngIf="messages.length === 0 && loaded" class="empty-message">
+  <p>Be the first to send a message. Say hi!</p>
+</div>
 <ion-item class="text-container">
   <form class="text-form" (ngSubmit)="onSubmit()">
     <ion-input [(ngModel)]="text" name="text" id="text" type="text" class="text-field" 
-      placeholder="Type to send a text message..." disabled="{{!chat.participants.includes(user)}}"></ion-input>
-    <ion-button disabled="{{!chat.participants.includes(user)}}" type="submit" fill="clear" class="submit-btn">
+      placeholder="Type to send a text message..."></ion-input>
+    <ion-button type="submit" fill="clear" class="submit-btn">
       <ion-icon name="send-sharp"></ion-icon>
     </ion-button>
 
   </form>
 </ion-item>
+ 
 
 <!-- [ngClass]="{ reminder: task.reminder }"-->

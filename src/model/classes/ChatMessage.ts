@@ -1,25 +1,28 @@
-import { IChatMessage } from "../interfaces/interfaces";
 import { ChatGroup } from "./ChatGroup";
 import { User } from "./User";
 
-export class ChatMessage implements IChatMessage{
+export class ChatMessage{
 
     id: number;
-    sender: User;
-    group: ChatGroup;
+    sender: number;
+    department_id: number;
     time: Date;
-    message: string;
-    parentMessage?: ChatMessage;
+    body: string;
+    sender_name:string;
+    department_name: string;
 
-    constructor(id:number, sender:User, group: any, time: Date|string, message:string, parentMessage?: ChatMessage){
+    constructor(id:number, sender:number, department_id: number, time: Date|string, body:string, sender_name: string,
+        department_name: string){
         this.id = id;
         this.sender = sender;
-        this.group = group;
-        this.message = message;
+        this.department_id = department_id;
+        this.body = body;
+        this.sender_name = sender_name;
+        this.department_name = department_name;
 
-        if(typeof time === 'string') this.time = new Date(time)
+        if(typeof time === 'string'){
+            this.time = new Date(time);
+        }
         else this.time = time;
-
-        if(parentMessage) this.parentMessage = parentMessage;
     }
 }

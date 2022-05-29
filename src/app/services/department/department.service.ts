@@ -1,8 +1,10 @@
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, OnInit } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 import { Company } from 'src/model/classes/Company';
-import { department } from 'src/model/classes/department';
-import { User } from 'src/model/classes/User';
+import { Department } from 'src/model/classes/Department';
+import { CompanyService } from '../company/company.service';
 import { UserService } from '../user/user.service';
 
 
@@ -10,91 +12,69 @@ import { UserService } from '../user/user.service';
 @Injectable({
   providedIn: 'root'
 })
-export class departmentService {
+export class DepartmentService implements OnInit {
 
-  deptsPerRequest = 10;
-  company: Company;
-  fakeDb: department[];
-  subject = new Subject;
 
-  constructor() {
-    this.company = new Company(0, 'Teste')
-    this.fakeDb = [
-      new department(0, 'IT department', this.company),
-      new department(1, 'Marketing', this.company),
-      new department(2, 'Accounting', this.company),
-      new department(3, 'Sales', this.company),
-      new department(4, 'Logistics', this.company),
-      new department(5, 'Stock department', this.company),
-    ]
-    //   [
-    //     {
-    //       id: 0,
-    //       name: 'IT department',
-    //       company: this.company
-    //     },
-    //     {
-    //       id: 1,
-    //       name: 'Marketing',
-    //       company: this.company
-    //     },
-    //     {
-    //       id: 2,
-    //       name: 'Accounting',
-    //       company: this.company
-    //     },
-    //     {
-    //       id: 3,
-    //       name: 'Sales',
-    //       company: this.company
-    //     },
-    //     {
-    //       id: 4,
-    //       name: 'Logistics',
-    //       company: this.company
-    //     },
-    //     {
-    //       id: 5,
-    //       name: 'Stock department',
-    //       company: this.company
-    //     }
-    // ]
-   }
-
-  getdepartments(page:number):department[]{
-    return this.fakeDb.filter((department: department, index: number) => {
-      return this.deptsPerRequest*page >= index+1 && this.deptsPerRequest*page - this.deptsPerRequest < index+1 // for testing pagination
-    })
+  departments: Department[];
+  currentUserDepartment: Department;
+  
+  constructor(private http: HttpClient, private userService: UserService) {
+    
   }
 
-  getAlldepartments():department[]{
-    return this.fakeDb;
+
+  ngOnInit(): void {
   }
 
-  getdepartment(id: number):department{
-    return this.fakeDb.filter(department => department.id === id)[0];
+  createDepartment(name: string, companyId: number): Observable<any> {
+    const url = `${environment.apiUrl}/department/create`;
+    const headers = { authorization: `Bearer ${this.userService.currentUser.token}`, 'Content-Type': 'application/json' };
+    return this.http.post<any>(url, { name, companyId }, { headers: headers });
   }
 
-  async deleteDepartment(department: department, users: User[]):Promise<boolean>{
-    if(users.length === 0){
-      const deletedDepartment = {...department};
-      const index = this.fakeDb.indexOf(department)
-      this.fakeDb.splice(index, 1);
-      this.subject.next(deletedDepartment)
-      return true
-    }else{
-      return false
+  setDepartments(id: number): void {
+    this.getDepartments(id).subscribe((data: any) => {
+      this.departments = data.data;
+    });
+  }
+
+  updateDepartment(name: string, id: number): Observable<any> {
+    const url = `${environment.apiUrl}/department/update`;
+    const headers = { authorization: `Bearer ${this.userService.currentUser.token}`, 'Content-Type': 'application/json' };
+    const body = { name, department_id: id };
+    return this.http.put<any>(url, body, { headers: headers });
+  }
+
+  getDepartments(id: number): Observable<any> {
+    const url = `${environment.apiUrl}/department/get-departments/${id}`;
+    const headers = { authorization: `Bearer ${this.userService.currentUser.token}` };
+    return this.http.get<any>(url, { headers: headers });
+  }
+
+  getDepartment(id: number): Observable<any> {
+    const url = `${environment.apiUrl}/department/get-department/${id}`;
+    const headers = { authorization: `Bearer ${this.userService.currentUser.token}` };
+    return this.http.get<any>(url, { headers: headers });
+  }  
+
+  setUserDepartment(department_id: number): void {
+    const url = `${environment.apiUrl}/department/get-department/${department_id}`;
+    const headers = { authorization: `Bearer ${this.userService.currentUser.token}` };
+    this.http.get<any>(url, { headers: headers }).subscribe((data: any) => {    
+      this.currentUserDepartment = data.data;
+    });
     }
+    /*
+ //TODO: FIX THIS
+  deleteDepartmentDb(id: number):Observable<any>{
+    const url = `${environment.apiUrl}/department/delete/${id}`;
+    return this.httpClient.delete(url, {headers: this.headers});
   }
-
-  async createDepartment(name: string):Promise<department>{
-    const newDepartment = new department(this.fakeDb.length, name, this.company);
-    this.fakeDb.push(newDepartment);
-    this.subject.next(newDepartment)
-    return newDepartment
-  }
-
+  //TODO: check this
   onChange(): Observable<any> {
     return this.subject.asObservable()
-  }
+
+  } */
+
+
 }

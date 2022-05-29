@@ -7,18 +7,15 @@
 <ion-content>
   <ion-list lines="full">
     <ion-item *ngFor="let user of users">
-      <ion-label>{{user.getFullName()}}</ion-label>
+      <ion-label>{{user.name}} {{user.surname}}</ion-label>
       <div class="icons">
         <ion-icon name="pencil-outline"
-          style="color: darkorange; margin-right: 20px;" (click)="redirectTo('/edit-user/' + user.id)"></ion-icon>
+          style="color: darkorange; margin-right: 20px;" (click)="redirectTo('/edit-user/' + user.user_id)"></ion-icon>
         <ion-icon (click)="confirmDelete(user)" name="trash-outline" style="color: brown;"></ion-icon>
       </div>
     </ion-item>
   </ion-list>
-  <ion-infinite-scroll threshold="100px" (ionInfinite)="loadData($event)">
-    <ion-infinite-scroll-content loadingSpinner="bubbles">
-    </ion-infinite-scroll-content>
-  </ion-infinite-scroll>
+
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button color="tertiary" (click)="presentAdd()">
       <ion-icon class="add-icon" name="add"></ion-icon>

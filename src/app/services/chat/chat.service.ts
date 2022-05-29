@@ -6,6 +6,9 @@ import { UserService } from '../user/user.service';
 import { User } from 'src/model/classes/User';
 import { Chat } from 'src/model/classes/Chat';
 import { Message } from 'src/model/classes/Message';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
 
 
 @Injectable({
@@ -13,101 +16,86 @@ import { Message } from 'src/model/classes/Message';
 })
 export class ChatService {
 
-  chatsPerRequest: number = 10;
-  subscription: Subscription;
-  private subject = new Subject();
-  fakeDb: Chat[];
 
-  constructor(private userService: UserService, private messageService: MessagesService) {
+  chats: Chat[];
+  user: User;
+  subject = new Subject();
+  fullyLoaded = false;
 
-    this.fakeDb = [
-      new Chat(0, [this.userService.getUser(0), this.userService.getUser(1)]),
-      new Chat(1, [this.userService.getUser(5), this.userService.getUser(3)]),
-      new Chat(2, [this.userService.getUser(2), this.userService.getUser(5)]),
-      new Chat(3, [this.userService.getUser(5), this.userService.getUser(4)]),
-      new Chat(4, [this.userService.getUser(5), this.userService.getUser(1)]),
-      new Chat(5, [this.userService.getUser(6), this.userService.getUser(5)]),
-    ]
-    this.updateMessages()
-    this.subscription = messageService.onChange().subscribe(value => {
-      this.fakeDb.forEach(chat => {
-        if(chat.id === value.chatId)
-          chat.insertMessage(value)
-        return chat
-      })
-    })
+  constructor(private userService: UserService, private messageService: MessagesService,
+    private http: HttpClient) {
+
   }
 
-  
+  getChats(user: User): void {
+    this.user = user;
+    const headers = { 'authorization': 'Bearer ' + user.token };
+    this.http.post<any>(environment.apiUrl + '/messages/get-messages/' + user.id,{ page: 0 },{headers: headers}).subscribe(
+      (data) => {
+        this.chats = data.messages.map((data) => {
+          const user = {name: data.user.name, surname: data.user.surname, picture: data.user.profilePicture, id: data.user.id};
+          const message = new Message(data.chatMessageId, data.chatSenderId, data.chatReceiverId, data.chatTime, data.chatMessage, 
+            data.chatWasSeen, data.parentMessageId);
+          return new Chat(data.chatId, message, null, user);
+        })
+        if(this.chats.length < 10) {
+          this.fullyLoaded = true;
+        }
+        this.chats.forEach(chat => {
+          this.getUnreads(chat.user.id).subscribe(data => {
+            chat.unreads = data.unread;
+          })
+        })
+        this.subject.next(this.chats);
+      },
+      (error) => {
+        console.log(error);
 
-  getChats(user:User, page:number) {
-    const chats = this.fakeDb.filter((chat: Chat, index: number) => user.id === chat.participants[0].id || user.id === chat.participants[1].id)
-    return chats.slice((page - 1) * this.chatsPerRequest, page * this.chatsPerRequest);
-  }
-
-  getChat(id: number, user: User):Chat|boolean{
-    const chat = this.fakeDb.filter((chat: Chat) => chat.id === id)[0]
-    if(chat.participants.includes(user)) return chat
-    else return false
-  }
-
-  getChatByMessage(message: Message):Chat{
-    return this.fakeDb.filter(chat => chat.messages.includes(message))[0]
-  }
-
-  updateMessages():void{
-    this.fakeDb.forEach((chat: Chat) => {
-      const messages: Message[] = this.messageService.getMessages(chat.participants, chat)
-      const unreads = messages.reduce((previous, current):number => {
-        if(current.read) return previous
-        else return previous+1
-      }, 0)
-
-      chat.unreads = unreads
-      if(messages.length > 0)
-        chat.loadMoreMessages(messages)
-    })
-  }
-
-  newChat(userA: User, userB:User):Chat{
-    return new Chat(this.fakeDb.length, [userA, userB])
-  }
-
-  verifyChat(userA: User, userB: User):number{
-    let chat: Chat;
-    const exists = this.fakeDb.reduce((previous, current) => {
-      if(previous) return true
-      if(current.participants.includes(userA) && current.participants.includes(userB)){
-        chat = current
-        return true
       }
-      return false
-    }, false)
+      );
+  }
 
-    if(exists){
-      return chat.id
-    }else{
-      const newChat = this.newChat(userA, userB)
-      this.fakeDb.push(newChat)
-      return newChat.id
+  getNextTenChats(page: number): void {
+    const headers = { 'authorization': 'Bearer ' + this.user.token };
+    const body = { page: page };
+    this.http.post<any>(environment.apiUrl + '/messages/get-messages/' + this.user.id, body, { headers: headers }).subscribe(
+      (data) => {
+        var newChats = data.messages.map((data) => {
+          const user = {name: data.user.name, surname: data.user.surname, picture: data.user.profilePicture, id: data.user.id};
+          const message = new Message(data.chatMessageId, data.chatSenderId, data.chatReceiverId, data.chatTime, data.chatMessage, 
+            data.chatWasSeen, data.parentMessageId);
+          return new Chat(data.chatId, message, null, user);
+        })
+        if(newChats.length < 10) {
+          this.fullyLoaded = true;
+        }
+        newChats.forEach((chat: Chat) => {
+          this.getUnreads(chat.user.id).subscribe(data => {
+            chat.unreads = data.unread;
+          })
+        })
+        this.chats = this.chats.concat(newChats);
+        this.subject.next(this.chats);
+      },
+      (error) => {
+        console.log(error);
+
+      }
+      );
     }
-    
+
+  getUnreads(senderId: number):Observable<any>{
+    const headers = { 'authorization': 'Bearer ' + this.user.token };
+    const body = {receiverId: this.userService.currentUser.id, senderId};
+    return this.http.post<any>(environment.apiUrl + '/messages/get-unread', body,{headers: headers})
   }
 
-  async deleteChat(user: User):Promise<boolean>{
-    let deletedChat: Chat;
-    this.fakeDb.forEach((chat: Chat, index: number, arr: Chat[]) => {
-      if(chat.participants.includes(user)){
-        deletedChat = chat; 
-        arr.splice(index, 1);
-      }
-    })
-    this.subject.next(deletedChat)
-    return true
+  onLoad(): Observable<any> {
+    return this.subject.asObservable();
   }
-
   onDelete(): Observable<any> {
     return this.subject.asObservable()
+
   }
 
 }

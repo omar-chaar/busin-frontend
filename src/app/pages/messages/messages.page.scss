@@ -5,10 +5,24 @@
 }
 
 .text-info{
-    width: 70%;
+    width: 100%;
 }
 
 .hour-info{
-    flex: 1;
+    flex: 0;
     width: 20%;
+}
+.name-info{
+    flex: 2;
+}
+.meta-info{
+    display: flex;
+    width: 20%;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.department-group{
+    --background: rgba(82, 96,	255, 0.2);
+    //--background: rgba(0, 0, 0, 0.2);
 }
