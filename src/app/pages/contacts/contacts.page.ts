@@ -2,12 +2,12 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonInfiniteScroll } from '@ionic/angular';
 import { IonAccordionGroup } from '@ionic/angular';
-import { ChatService } from 'src/app/services/chat/chat.service';
 import { DepartmentService } from 'src/app/services/department/department.service';
 import { UserService } from 'src/app/services/user/user.service';
 
 import { User } from 'src/model/classes/User';
 import { Department } from 'src/model/classes/Department';
+import { CompanyService } from 'src/app/services/company/company.service';
 
 
 @Component({
@@ -26,14 +26,14 @@ export class ContactsPage implements OnInit {
 
 
   constructor(private departmentService: DepartmentService, private userService: UserService,
-    private router: Router, private chatService:ChatService) {
+    private router: Router, private companyService:CompanyService) {
       
   }
 
-  ngOnInit(): void {
+  ngOnInit(): void {    
+    this.companyService.setCompany(this.userService.currentUser);
     this.user = this.userService.currentUser
-    const deptos = this.departmentService.departments
-    this.departments = deptos;
+    this.departments = this.departmentService.departments
     for(let department of this.departments){
       this.loadUsers(department);
     }
