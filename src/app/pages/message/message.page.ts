@@ -66,7 +66,6 @@ export class MessagePage implements OnInit, OnDestroy {
             this.ScrollToBottom();
           });          
           this.socketService.connect();
-          console.log(this.contact.user_id)
           this.socketService.privateConnection(this.contact.user_id);
           this.socketService.getNewMessage().subscribe((message: Message) => {
             if (message != null)
